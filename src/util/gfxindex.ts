@@ -52,14 +52,14 @@ export async function getGfxContainerFiles(gfxNames: (string | undefined)[]): Pr
 
 async function buildGlobalGfxIndex(estimatedSize: [number]): Promise<void> {
     const options = { mod: false, recursively: true };
-    const gfxFiles = (await listFilesFromModOrHOI4('interface', options)).filter(f => f.toLocaleLowerCase().endsWith('.gfx'));
-    await Promise.all(gfxFiles.map(f => fillGfxItems('interface/' + f, globalGfxIndex, options, estimatedSize)));
+    const gfxFiles = (await listFilesFromModOrHOI4('', options)).filter(f => f.toLocaleLowerCase().endsWith('.gfx'));
+    await Promise.all(gfxFiles.map(f => fillGfxItems(f, globalGfxIndex, options, estimatedSize)));
 }
 
 async function buildWorkspaceGfxIndex(estimatedSize: [number]): Promise<void> {
     const options = { hoi4: false, recursively: true };
-    const gfxFiles = (await listFilesFromModOrHOI4('interface', options)).filter(f => f.toLocaleLowerCase().endsWith('.gfx'));
-    await Promise.all(gfxFiles.map(f => fillGfxItems('interface/' + f, workspaceGfxIndex, options, estimatedSize)));
+    const gfxFiles = (await listFilesFromModOrHOI4('', options)).filter(f => f.toLocaleLowerCase().endsWith('.gfx'));
+    await Promise.all(gfxFiles.map(f => fillGfxItems(f, workspaceGfxIndex, options, estimatedSize)));
 }
 
 async function fillGfxItems(gfxFile: string, gfxIndex: Record<string, GfxIndexItem | undefined>, options: { mod?: boolean, hoi4?: boolean }, estimatedSize?: [number]): Promise<void> {
@@ -141,7 +141,7 @@ function removeWorkspaceGfxIndex(file: vscode.Uri) {
     const wsFolder = vscode.workspace.getWorkspaceFolder(file);
     if (wsFolder) {
         const relative = path.relative(wsFolder.uri.path, file.path).replace(/\\+/g, '/');
-        if (relative && relative.startsWith('interface/')) {
+        if (relative && relative.includes('interface/')) {
             for (const key in workspaceGfxIndex) {
                 if (workspaceGfxIndex[key]?.file === relative) {
                     delete workspaceGfxIndex[key];
@@ -155,7 +155,7 @@ function addWorkspaceGfxIndex(file: vscode.Uri) {
     const wsFolder = vscode.workspace.getWorkspaceFolder(file);
     if (wsFolder) {
         const relative = path.relative(wsFolder.uri.path, file.path).replace(/\\+/g, '/');
-        if (relative && relative.startsWith('interface/')) {
+        if (relative && relative.includes('interface/')) {
             fillGfxItems(relative, workspaceGfxIndex, { hoi4: false });
         }
     }
